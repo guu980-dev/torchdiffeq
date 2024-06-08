@@ -168,7 +168,7 @@ class CustomRunningAverageMeter(RunningAverageMeter):
       self.reset()
 
     def reset(self):
-      super.reset()
+      super().reset()
       self.values = []
 
     def update(self, val):
