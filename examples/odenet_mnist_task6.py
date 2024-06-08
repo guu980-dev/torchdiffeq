@@ -8,6 +8,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--network', type=str, choices=['resnet', 'odenet'], default='odenet')
@@ -292,6 +293,37 @@ def get_logger(logpath, filepath, package_files=[], displaying=True, saving=True
 
     return logger
 
+def plot_accuracy(train_accs, test_accs, epochs):
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs, train_accs, label='Train Accuracy')
+    plt.plot(epochs, test_accs, label='Test Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Train and Test Accuracy over Epochs')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+def plot_average_batch_time(average_times, epochs):
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs, average_times, label='Average Batch Time')
+    plt.xlabel('Epoch')
+    plt.ylabel('Time (seconds)')
+    plt.title('Average Wall Clock Time per Batch over Epochs')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+def plot_total_batch_time(total_times, epochs):
+    plt.figure(figsize=(10, 5))
+    plt.plot(epochs, total_times, label='Total Batch Time')
+    plt.xlabel('Epoch')
+    plt.ylabel('Time (seconds)')
+    plt.title('Total Wall Clock Time over Epochs')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 
 if __name__ == '__main__':
 
@@ -351,6 +383,12 @@ if __name__ == '__main__':
     b_nfe_meter = RunningAverageMeter()
     end = time.time()
 
+    train_accuracies = []
+    test_accuracies = []
+    average_times = []
+    total_times = []
+    epochs = []
+
     for itr in range(args.nepochs * batches_per_epoch):
 
         for param_group in optimizer.param_groups:
@@ -398,4 +436,16 @@ if __name__ == '__main__':
                         custom_batch_time_meter.total_val(), batches_per_epoch,
                     )
                 )
+
+                train_accuracies.append(train_acc)
+                test_accuracies.append(val_acc)
+                average_times.append(custom_batch_time_meter.real_avg())
+                total_times.append(custom_batch_time_meter.total_val())
+                epochs.append(itr // batches_per_epoch)
+
                 custom_batch_time_meter.reset()
+
+
+    plot_accuracy(train_accuracies, test_accuracies, epochs)
+    plot_average_batch_time(average_times, epochs)
+    plot_total_batch_time(total_times, epochs)
