@@ -430,7 +430,8 @@ if __name__ == '__main__':
                 if val_acc > best_acc:
                     torch.save({'state_dict': model.state_dict(), 'args': args}, os.path.join(args.save, 'model.pth'))
                     best_acc = val_acc
-                logger.info(
+                # logger.info(
+                print(
                     "Epoch {:04d} | Time {:.3f} ({:.3f}) | NFE-F {:.1f} | NFE-B {:.1f} | "
                     "Train Acc {:.4f} | Test Acc {:.4f} | Average Wall Clock Time for batch in epoch {:.3f} | "
                     "Total Wall Clock Time in epoch {:.3f} | batch number per epoch {:04d}".format(
@@ -448,7 +449,7 @@ if __name__ == '__main__':
 
                 custom_batch_time_meter.reset()
 
-
     plot_accuracy(train_accuracies[1:], test_accuracies[1:], epochs[1:])
     plot_average_batch_time(average_times[1:], epochs[1:])
     plot_total_batch_time(total_times[1:], epochs[1:])
+    print('total average wall clock time per epoch {:.2f}'.format(sum(total_times)/len(total_times)))
