@@ -271,6 +271,11 @@ def makedirs(dirname):
 
 def get_logger(logpath, filepath, package_files=[], displaying=True, saving=True, debug=False):
     logger = logging.getLogger()
+
+    # skip if logger already exist
+    if (len(logger.handlers) > 0):
+        return logger
+
     if debug:
         level = logging.DEBUG
     else:
