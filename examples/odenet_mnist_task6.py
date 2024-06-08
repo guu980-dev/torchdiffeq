@@ -20,6 +20,7 @@ parser.add_argument('--data_aug', type=eval, default=True, choices=[True, False]
 parser.add_argument('--lr', type=float, default=0.1)
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--test_batch_size', type=int, default=1000)
+parser.add_argument('--solver_method', type=str, default='default', choices=['default', 'euler', 'dopri5', 'rk4', ]) # default = dopri5
 
 parser.add_argument('--save', type=str, default='./experiment1')
 parser.add_argument('--debug', action='store_true')
@@ -116,14 +117,15 @@ class ODEfunc(nn.Module):
 
 class ODEBlock(nn.Module):
 
-    def __init__(self, odefunc):
+    def __init__(self, odefunc, method):
         super(ODEBlock, self).__init__()
         self.odefunc = odefunc
+        self.method = method
         self.integration_time = torch.tensor([0, 1]).float()
 
     def forward(self, x):
         self.integration_time = self.integration_time.type_as(x)
-        out = odeint(self.odefunc, x, self.integration_time, rtol=args.tol, atol=args.tol)
+        out = odeint(self.odefunc, x, self.integration_time, rtol=args.tol, atol=args.tol, method=self.method)
         return out[1]
 
     @property
@@ -352,7 +354,8 @@ if __name__ == '__main__':
             ResBlock(64, 64, stride=2, downsample=conv1x1(64, 64, 2)),
         ]
 
-    feature_layers = [ODEBlock(ODEfunc(64))] if is_odenet else [ResBlock(64, 64) for _ in range(6)]
+    ode_solver_method = None if args.solver_method == 'default' else args.solver_method
+    feature_layers = [ODEBlock(ODEfunc(64), ode_solver_method)] if is_odenet else [ResBlock(64, 64) for _ in range(6)]
     fc_layers = [norm(64), nn.ReLU(inplace=True), nn.AdaptiveAvgPool2d((1, 1)), Flatten(), nn.Linear(64, 10)]
 
     model = nn.Sequential(*downsampling_layers, *feature_layers, *fc_layers).to(device)
