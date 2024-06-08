@@ -446,6 +446,6 @@ if __name__ == '__main__':
                 custom_batch_time_meter.reset()
 
 
-    plot_accuracy(train_accuracies, test_accuracies, epochs)
-    plot_average_batch_time(average_times, epochs)
-    plot_total_batch_time(total_times, epochs)
+    plot_accuracy(train_accuracies[1:], test_accuracies[1:], epochs[1:])
+    plot_average_batch_time(average_times[1:], epochs[1:])
+    plot_total_batch_time(total_times[1:], epochs[1:])
