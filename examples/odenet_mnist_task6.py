@@ -165,6 +165,7 @@ class RunningAverageMeter(object):
 class CustomRunningAverageMeter(RunningAverageMeter):
     def __init__(self):
       super()
+      self.reset()
 
     def reset(self):
       super.reset()
